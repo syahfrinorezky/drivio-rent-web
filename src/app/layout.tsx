@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Poppins, Montserrat } from "next/font/google";
-import "@/styles/globals.css";
-
 import { ThemeProvider } from "next-themes";
 import clsx from "clsx";
+import "@/styles/globals.css";
+import Header from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -40,7 +41,9 @@ export default function RootLayout({
         className={clsx(poppins.variable, montserrat.variable, "antialiased")}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Header />
           <main>{children}</main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
