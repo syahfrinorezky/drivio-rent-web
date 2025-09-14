@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  CUSTOMER
+}
+
+model Users {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  email       String    @unique
+  password    String    @db.VarChar(255)
+  phoneNumber String    @db.VarChar(15)
+  address     String    @db.VarChar(255)
+  isVerified  Boolean   @default(false)
+  role        Role      @default(CUSTOMER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  bookings Bookings[]
+  reviews  Reviews[]
+}
+
+enum VehicleType {
+  CAR
+  BIKE
+}
+
+enum VehiclesStatus {
+  AVAILABLE
+  BOOKED
+  MAINTENANCE
+}
+
+model Vehicles {
+  id          Int            @id @default(autoincrement())
+  vehicleName String         @db.VarChar(50)
+  type        VehicleType
+  seats       Int
+  modelYear   Int
+  pricePerDay Float          @db.Float
+  image       String         @db.VarChar(255)
+  description String         @db.LongText
+  status      VehiclesStatus @default(AVAILABLE)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+
+  bookings Bookings[]
+  reviews  Reviews[]
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Bookings {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  idImage       String        @db.VarChar(255)
+  vehicleId     Int
+  startTime     DateTime
+  endTime       DateTime
+  status        BookingStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  note          String        @db.LongText
+  totalPrice    Float         @db.Float
+  paymentUrl    String?       @db.VarChar(255)
+  paymentId     String?
+  paymentStatus PaymentStatus @default(PENDING)
+
+  user    Users    @relation(fields: [userId], references: [id])
+  vehicle Vehicles @relation(fields: [vehicleId], references: [id])
+}
+
+model Reviews {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  vehicleId Int
+  rating    Int
+  comment   String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    Users    @relation(fields: [userId], references: [id])
+  vehicle Vehicles @relation(fields: [vehicleId], references: [id])
+}

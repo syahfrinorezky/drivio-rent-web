@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+import { Poppins, Montserrat } from "next/font/google";
+import "@/styles/globals.css";
+
+import { ThemeProvider } from "next-themes";
+import clsx from "clsx";
+
+const poppins = Poppins({
+  variable: "--font-poppins",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
+export const metadata: Metadata = {
+  title: "Drivio - Car Rental Service",
+  description: "Rent a car easily and quickly with Drivio.",
+  icons: {
+    icon: "/logo/white.svg",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={clsx(poppins.variable, montserrat.variable, "antialiased")}
+      >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <main>{children}</main>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
