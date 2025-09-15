@@ -81,8 +81,9 @@ enum PaymentStatus {
 model Bookings {
   id            Int           @id @default(autoincrement())
   userId        Int
-  idImage       String        @db.VarChar(255)
   vehicleId     Int
+  bookingId     String        @unique
+  idImage       String        @db.VarChar(255)
   startTime     DateTime
   endTime       DateTime
   status        BookingStatus @default(PENDING)
