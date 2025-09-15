@@ -23,8 +23,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Drivio - Car Rental Service",
-  description: "Rent a car easily and quickly with Drivio.",
+  title: "Drivio - Vehicle Rental Service",
+  description: "Rent a vehicle easily and quickly with Drivio.",
   icons: {
     icon: "/logo/white.svg",
   },
@@ -40,7 +40,12 @@ export default function RootLayout({
       <body
         className={clsx(poppins.variable, montserrat.variable, "antialiased")}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          forcedTheme="light"
+          enableSystem
+        >
           <Header />
           <main>{children}</main>
           <Footer />
