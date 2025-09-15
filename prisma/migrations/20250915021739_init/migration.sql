@@ -6,7 +6,6 @@ CREATE TABLE `Users` (
     `password` VARCHAR(255) NOT NULL,
     `phoneNumber` VARCHAR(15) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
-    `idImage` VARCHAR(255) NOT NULL,
     `isVerified` BOOLEAN NOT NULL DEFAULT false,
     `role` ENUM('SUPERADMIN', 'ADMIN', 'CUSTOMER') NOT NULL DEFAULT 'CUSTOMER',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -38,8 +37,10 @@ CREATE TABLE `Vehicles` (
 -- CreateTable
 CREATE TABLE `Bookings` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `bookingId` VARCHAR(191) NOT NULL,
     `userId` INTEGER NOT NULL,
     `vehicleId` INTEGER NOT NULL,
+    `idImage` VARCHAR(255) NOT NULL,
     `startTime` DATETIME(3) NOT NULL,
     `endTime` DATETIME(3) NOT NULL,
     `status` ENUM('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'PENDING',
@@ -51,6 +52,7 @@ CREATE TABLE `Bookings` (
     `paymentId` VARCHAR(191) NULL,
     `paymentStatus` ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
 
+    UNIQUE INDEX `Bookings_bookingId_key`(`bookingId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
