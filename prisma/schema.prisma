@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,20 +17,73 @@ enum Role {
 }
 
 model Users {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
-  email       String    @unique
-  password    String    @db.VarChar(255)
-  phoneNumber String    @db.VarChar(15)
-  address     String    @db.VarChar(255)
-  isVerified  Boolean   @default(false)
-  role        Role      @default(CUSTOMER)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  password   String    @db.VarChar(255)
+  isVerified Boolean   @default(false)
+  role       Role      @default(CUSTOMER)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
 
   bookings Bookings[]
   reviews  Reviews[]
+
+  customerProfile    CustomerProfiles?
+  adminProfile       AdminProfiles?
+  EmailVerifications EmailVerifications[]
+  PasswordResets     PasswordResets[]
+
+  @@index([role])
+  @@index([deletedAt])
+}
+
+model CustomerProfiles {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
+  fullName  String    @db.VarChar(100)
+  phone     String    @db.VarChar(15)
+  address   String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@index([deletedAt])
+}
+
+model AdminProfiles {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @unique
+  employeeId String    @unique @db.VarChar(50)
+  fullName   String    @db.VarChar(100)
+  phone      String    @db.VarChar(15)
+  address    String    @db.VarChar(255)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@index([deletedAt])
+}
+
+model Drivers {
+  id            Int       @id @default(autoincrement())
+  fullName      String    @db.VarChar(100)
+  phone         String    @db.VarChar(15)
+  address       String    @db.VarChar(255)
+  licenseNumber String    @unique @db.VarChar(50)
+  contractStart DateTime
+  contractEnd   DateTime
+  status        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([deletedAt])
 }
 
 enum VehicleType {
@@ -41,28 +91,48 @@ enum VehicleType {
   BIKE
 }
 
-enum VehiclesStatus {
+enum VehicleStatus {
   AVAILABLE
   BOOKED
   MAINTENANCE
 }
 
+enum GasType {
+  GASOLINE
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+}
+
 model Vehicles {
-  id          Int            @id @default(autoincrement())
-  vehicleName String         @db.VarChar(50)
-  type        VehicleType
-  seats       Int
-  modelYear   Int
-  pricePerDay Float          @db.Float
-  image       String         @db.VarChar(255)
-  description String         @db.LongText
-  status      VehiclesStatus @default(AVAILABLE)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  deletedAt   DateTime?
+  id           Int           @id @default(autoincrement())
+  vehicleName  String        @db.VarChar(50)
+  type         VehicleType
+  seats        Int
+  modelYear    Int
+  pricePerDay  Float         @db.Float
+  gasType      GasType
+  brand        String        @db.VarChar(50)
+  transmission Transmission
+  image        String        @db.VarChar(255)
+  description  String        @db.LongText
+  status       VehicleStatus @default(AVAILABLE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
 
   bookings Bookings[]
   reviews  Reviews[]
+
+  @@index([type])
+  @@index([brand])
+  @@index([status])
+  @@index([deletedAt])
 }
 
 enum BookingStatus {
@@ -83,31 +153,71 @@ model Bookings {
   bookingId     String        @unique
   userId        Int
   vehicleId     Int
-  idImage       String        @db.VarChar(255)
+  identityImage String        @db.VarChar(255)
+  licenseImage  String?       @db.VarChar(255)
   startTime     DateTime
   endTime       DateTime
+  withDriver    Boolean       @default(true)
   status        BookingStatus @default(PENDING)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  note          String        @db.LongText
+  note          String?       @db.LongText
   totalPrice    Float         @db.Float
   paymentUrl    String?       @db.VarChar(255)
   paymentId     String?
   paymentStatus PaymentStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
 
   user    Users    @relation(fields: [userId], references: [id])
   vehicle Vehicles @relation(fields: [vehicleId], references: [id])
+
+  @@index([userId])
+  @@index([vehicleId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([deletedAt])
+  @@index([startTime, endTime])
 }
 
 model Reviews {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    Int
   vehicleId Int
   rating    Int
-  comment   String   @db.LongText
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  comment   String    @db.LongText
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   user    Users    @relation(fields: [userId], references: [id])
   vehicle Vehicles @relation(fields: [vehicleId], references: [id])
+
+  @@index([userId])
+  @@index([vehicleId])
+  @@index([deletedAt])
+}
+
+model EmailVerifications {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  otp       String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([otp])
+  @@index([expiresAt])
+}
+
+model PasswordResets {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
 }
