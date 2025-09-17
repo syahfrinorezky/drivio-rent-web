@@ -126,7 +126,11 @@ function Header() {
                 </div>
 
                 <div className="mt-auto w-full flex flex-col gap-y-3 items-end">
-                  <Link href={"/register"} className="w-full">
+                  <Link
+                    href={"/register"}
+                    className="w-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     <Button variant="default" className="w-full h-12 text-base">
                       Register
                     </Button>
