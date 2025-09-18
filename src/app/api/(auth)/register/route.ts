@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { sendOtpEmail } from "@/lib/nodemailer";
 
 const registerSchema = z.object({
   email: z.string().email("Email must be a valid email address"),
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters long")
+    .min(8, "Password must be at least 8 characters long")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
 });
@@ -54,9 +55,23 @@ export async function POST(req: Request) {
       },
     });
 
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    const hashedOtp = await bcrypt.hash(otp.toString(), 10);
+
+    await prisma.emailVerifications.create({
+      data: {
+        userId: user.id,
+        otp: hashedOtp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    });
+
+    await sendOtpEmail(email, otp.toString());
+
     return NextResponse.json(
       {
-        message: "Register successful",
+        message: "Register successful, please verify your email",
         user: { id: user.id, email: user.email },
       },
       { status: 201 }
