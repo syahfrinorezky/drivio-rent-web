@@ -20,7 +20,7 @@ model Users {
   id         Int       @id @default(autoincrement())
   email      String    @unique
   password   String    @db.VarChar(255)
-  isVerified Boolean   @default(false)
+  verifiedAt DateTime?
   role       Role      @default(CUSTOMER)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -200,7 +200,8 @@ model Reviews {
 model EmailVerifications {
   id        Int      @id @default(autoincrement())
   userId    Int
-  otp       String   @unique
+  otp       String   
+  used      Boolean  @default(false)
   createdAt DateTime @default(now())
   expiresAt DateTime
 
